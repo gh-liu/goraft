@@ -32,10 +32,7 @@ type Server struct {
 
 	heartbeatTimeout time.Time
 
-	logs []struct {
-		term    uint64
-		command interface{}
-	}
+	logs        []Entry
 }
 
 func NewServer(address []string, index int) *Server {
@@ -120,7 +117,7 @@ func (s *Server) requestVote() {
 		req.CandidateID = s.ID()
 		logLen := len(s.logs) - 1
 		lastLogIndex := uint64(logLen)
-		lastLogTerm := s.logs[logLen-1].term
+		lastLogTerm := s.logs[logLen-1].Term
 		req.LastLogIndex = lastLogIndex
 		req.LastLogTerm = lastLogTerm
 		resp, err := s.cluster[idx].requestVote(req)
@@ -189,7 +186,7 @@ func (s *Server) HandleRequestVoteRequest(req RequestVoteRequest, resp *RequestV
 	logLen := len(s.logs)
 	if logLen > 0 {
 		// req.LastLogTerm >
-		lastLogTerm = s.logs[logLen-1].term
+		lastLogTerm = s.logs[logLen-1].Term
 	}
 	logOk := req.LastLogTerm > lastLogTerm || (req.LastLogTerm == lastLogTerm && req.LastLogIndex >= uint64(logLen))
 	// NOTE: actually the term is equal
@@ -237,6 +234,12 @@ type RequestVoteResponse struct {
 	Term        uint64 // currentTerm, for candidate to update itself
 	VoteGranted bool   // true means candidate received vote
 }
+
+type Entry struct {
+	Term    uint64
+	Command interface{}
+}
+
 func min[T ~int | ~uint64](a, b T) T {
 	if a < b {
 		return a
