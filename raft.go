@@ -237,3 +237,16 @@ type RequestVoteResponse struct {
 	Term        uint64 // currentTerm, for candidate to update itself
 	VoteGranted bool   // true means candidate received vote
 }
+func min[T ~int | ~uint64](a, b T) T {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max[T ~int | ~uint64](a, b T) T {
+	if a > b {
+		return a
+	}
+	return b
+}
